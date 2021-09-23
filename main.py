@@ -92,7 +92,7 @@ def delete_container():
         except ValueError:
             print('Invalid input. Try again - 12 symbols only')
         else:
-            os.system(f'docker rm -fv {container_id}')
+            os.system(f'docker rm --force {container_id}')
             print('The container has been deleted.\nThe updated containers list:\n',
                   os.system('docker ps -a'))
             return_or_quit()
@@ -115,14 +115,14 @@ def main():
     print("""
         Menu title:
         -----------
-        1) First action: list all images
-        2) Second action: list all containers
-        3) Third action: pull new image
-        4) Fourth action: delete image
-        5) Fifth action: run container
-        6) Sixth action: stop container
-        7) Seventh action:delete container
-        0) Quit
+        1st action: list all images
+        2nd action: list all containers
+        3rd action: pull new image
+        4th action: delete image
+        5th action: run container
+        6th action: stop container
+        7th action:delete container
+        0 - Quit
     """)
     choice = int(input("Enter option: "))
     if choice == 1:
