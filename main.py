@@ -81,45 +81,33 @@ def delete_container(): ## TODO: check if running, stop and then delete
 
 
 def main():
-    while True:
-        print('''
-            Please choose
-            -----------
-            Press for:
-            'li': list all images
-            'lc': list all containers
-            'pi': pull new image
-            'di': delete image
-            'rc': run container
-            'sc': stop container
-            'dc': delete container
-            'q': quit
-        ''')
-        select_list = ['li', 'lc', 'pi', 'di', 'rc', 'dc', 'q']
-        choice = input('Enter option:\n')
-        if choice.replace(' ', '').lower() in select_list:
-            if choice == 'li':
-                list_images()
-            elif choice == 'lc':
-                list_containers()
-            elif choice == 'pi':
-                pull_image()
-            elif choice == 'di':
-                delete_image()
-            elif choice == 'rc':
-                run_container()
-            elif choice == 'sc':
-                stop_container()
-            elif choice == 'dc':
-                delete_container()
-            elif choice == 'q':
-                print('Quitting...')
-                quit()
-            else:
-                print('Error')
-        else:
-            print('Invalid input. Please try again')
-            quit()
+    actions = {
+        'q': quit,
+        'li': list_images,
+        'lc': list_containers,
+        'pi': pull_image,
+        'di': delete_image,
+        'rc': run_container,
+        'sc': stop_container,
+        'dc': delete_container
+    }
+    choice = input(f'''
+        Please input command\n\t{'-' * 25}
+        'q': quit,
+        'li': list_images,
+        'lc': list_containers,
+        'pi': pull_image,
+        'di': delete_image,
+        'rc': run_container,
+        'sc': stop_container,
+        'dc': delete_container\n\t{'-' * 25}
+        ''').lower()
+
+    if choice in actions.keys():
+        actions[choice]()
+    else:
+        print('Invalid input. Please try again')
+        quit()
 
 
 if __name__ == '__main__':
