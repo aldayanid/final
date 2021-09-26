@@ -1,9 +1,10 @@
 import docker
-client = docker.from_env()
+
+CLIENT = docker.from_env()
 
 
 def list_images():
-    images = client.images.list(all=True)
+    images = CLIENT.images.list(all=True)
     print('\n    ID:\t\tNAME:')
     for image in images:
         for image_obj in image.tags:
@@ -14,8 +15,8 @@ def list_images():
 
 def list_containers():
     print('\nID:\t\t\tNAME:\t\t\tIMAGE:')
-    for containers in client.containers.list(all=True):
-        print('{}\t{}\t{}'.format(containers.short_id, repr(containers.name).rjust(20), containers.image))
+    for containers in CLIENT.containers.list(all=True):
+        print('{}\t{}\t{}'.format(containers.short_id, repr(containers.name).rjust(25), containers.image))
     print('\n')
 
 
@@ -25,7 +26,6 @@ def pull_image():
     ----------------------------------\n
     1 - Debian; 2 - Ubuntu; 3 - CentOS\n'''))
     image_name = ''
-
     if repo_num == 1:
         image_name = 'debian'
     elif repo_num == 2:
@@ -33,8 +33,8 @@ def pull_image():
     elif repo_num == 3:
         image_name = 'centos'
     else:
-        print('Wrong choice, try again')    ## TODO: Make action check
-    client.images.pull(image_name)
+        print('Wrong choice, try again')
+    CLIENT.images.pull(image_name)
     print(f'The image {image_name} has been pulled, and been added to the list:\n')
     list_images()
 
@@ -42,53 +42,47 @@ def pull_image():
 def delete_image():
     print('To delete, please copy/paste one of the listed image IDs:\n')
     list_images()
-    image_id = input("Delete image by IMAGE ID - 10 symbols:\n").replace(" ", "")
-    if len(image_id) == 10:     ##TODO: Nafig!
-        client.images.remove(image_id)
-        print(f'The selected image {image_id} has been removed.\nThe updated image list\n')
-        list_images()
-    else:
-        print('Invalid input. Try again - 10 symbols only')
+    image_id = input('Delete image by IMAGE ID - 10 symbols:\n').strip()
+    CLIENT.images.remove(image_id)
+    print(f'The selected image {image_id} has been removed.\nThe updated image list\n')
+    list_images()
 
 
 def run_container():
     print('To run a new container, please copy/paste one of the listed image IDs:\n')
     list_images()
-    image_id = str(input("Select the image to run a new container:\n")).replace(" ", "")
-    if len(image_id) == 10: ##TODO: Nafig!
-        print(f'Running container from the selected image {image_id}\n{client.containers.run(image_id)}')
-        list_containers()
-    else:
-        print('Invalid input. Try again - 10 symbols only')
+    image_id = input('Select the image to run a new container:\n').strip()
+    print(f'Running container from the selected image {image_id}\n{CLIENT.containers.run(image_id)}')
+    list_containers()
 
 
 def stop_container():
     print(f'To stop a container, please copy/paste one of the listed container IDs:\n')
     list_containers()
-    container_id = input('Select the container name to stop: ').replace(" ", "")
-    if len(container_id) == 10: ##TODO: Nafig!
-        client.containers.stop(container_id)
-        print(f'The container has been ran.\nThe updated containers list:\n')
-        list_containers()
-    else:
-        print('Invalid input. Try again - 10 symbols only')
+    container_id = input('Select the container name to stop: ').strip()
+    CLIENT.containers.stop(container_id)
+    print(f'The container has been ran.\nThe updated containers list:\n')
+    list_containers()
 
 
 def delete_container(): ## TODO: check if running, stop and then delete
-    containers_list = client.containers.list()
-    for containers in containers_list:
-        print(f'Container ID: {containers.short_id}, name: {containers.name}, tag: {str(containers.image)[9:-2]}')
-        container_id = str(input('Select the container name to delete: ')).replace(" ", "") ## TODO:
-        if len(container_id) == 10: ##TODO: Nafig!
-            APIClient.kill(container_id)  ##TODO: add remove!
-            print(f'The container has been deleted.\nThe updated containers list:')
-        else:
-            print('Invalid input. Try again - 10 symbols only')
+    list_containers()
+    container_name = input('Select the container name to delete: ').strip()
+    exited_filter = {
+        'status': 'exited',
+        'name': container_name
+    }
+    print('\nFiltered containers:')
+    for container in CLIENT.containers.list(filters=exited_filter):
+        print(f'\tRemoving container:\tID\t{container.short_id}\tNAME:\t{container.name}')
+        container.remove()
+        print('\t...successfully removed')
+    list_containers()
 
 
 def main():
     while True:
-        print("""
+        print('''
             Please choose
             -----------
             Press for:
@@ -100,10 +94,10 @@ def main():
             'sc': stop container
             'dc': delete container
             'q': quit
-        """)
+        ''')
         select_list = ['li', 'lc', 'pi', 'di', 'rc', 'dc', 'q']
-        choice = input("Enter option:\n")
-        if choice.replace(" ", "").lower() in select_list:
+        choice = input('Enter option:\n')
+        if choice.replace(' ', '').lower() in select_list:
             if choice == 'li':
                 list_images()
             elif choice == 'lc':
