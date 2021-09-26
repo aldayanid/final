@@ -2,22 +2,19 @@ import docker
 client = docker.from_env()
 
 
-def list_images(): ## TODO: Try somehow to "tabulate" the output
+def list_images():
     images = client.images.list(all=True)
+    print('\n    ID:\t\tNAME:')
     for image in images:
         for image_obj in image.tags:
             image_str = ''.join([str(item) for item in image_obj])
-            print(f'Image ID: {image.short_id[7:]}\t tag: {image_str}')
+            print('{}\t{}'.format(image.short_id[7:], image_str))
     print('\n')
 
 
-def list_containers(): ## TODO: Try somehow to "tabulate" the output
+def list_containers():
     print('\nID:\t\t\tNAME:\t\t\tIMAGE:')
-    # print('\tID\t\tNAME\t\tSTATUS\t\tIMAGE\t') ##TODO .format
     for containers in client.containers.list(all=True):
-        # print(f'ID {containers.short_id} Name: {containers.name} Image{containers.image}')
-        # containers_list_trim = [containers['Id'][0:12], str(containers['Names'])[3:-2],
-        #                            containers['Status'][0:6], containers['ImageID'][7:19]]
         print('{}\t{}\t{}'.format(containers.short_id, repr(containers.name).rjust(20), containers.image))
     print('\n')
 
