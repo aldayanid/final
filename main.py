@@ -7,7 +7,7 @@ def list_images():
     print('\n    ID:\t\t\tNAME:')
     for image in CLIENT.images.list(all=True):
         for image_tag in image.tags:
-            print(f'{image.short_id[7:]}\t {image_tag}')
+            print(image.short_id[7:], '\t', image_tag)
     print('\n')
 
 
@@ -24,25 +24,23 @@ def pull_image():
     chosen_repo = ''
     while chosen_repo not in repo_list:
         chosen_repo = input(f'''
-        Please select one of the  following repositories:
+        Please select one of the following repositories:
         {'-' * 34}
         1 - Debian; 2 - Ubuntu; 3 - CentOS
         {'-' * 34}
         Please use numeric digits: 1, 2, 3 only.
-        Or just type "0" to quit from the function\n''')
+        Or just type "0" to quit from the function\n
+        ''')
         if chosen_repo == 'Q' or 'q':
             break
-    else:
-        if chosen_repo == '1':
-            image_name = 'debian'
-        elif chosen_repo == '2':
-            image_name = 'ubuntu'
-        elif chosen_repo == '3':
-            image_name = 'centos'
-        else:
-            main()
-        CLIENT.images.pull(image_name)
-        print(f'The image {image_name} has been pulled, and been added to the list:\n')
+    if chosen_repo == '1':
+        image_name = 'debian'
+    elif chosen_repo == '2':
+        image_name = 'ubuntu'
+    elif chosen_repo == '3':
+        image_name = 'centos'
+    CLIENT.images.pull(image_name)
+    print(f'The image {image_name} has been pulled, and been added to the list:\n')
     list_images()
 
 
@@ -64,13 +62,15 @@ def run_container():
     list_containers()
 
 
-def stop_container():
-    print(f'To stop a container, please copy/paste one of the listed container IDs:\n')
+def stop_container(): ##TODO: add check if there is running container
+    running_filter = {'status': 'running'}
+    CLIENT.containers.list(filters=running_filter)
+    container_name = input('Select the container name to stop: ').strip()
+    for container in CLIENT.containers.list(filters=running_filter):
+        print(f'\tStopping container:\tID\t{container.short_id}\tNAME:\t{container.name}')
+        container.stop()
+        print(f'The container {container_name} has been stopped.')
     list_containers()
-    container_id = input('Select the container name to stop: ').strip()
-    CLIENT.container.stop(container_id)
-    print(f'The container {container_id} has been stopped.\nThe updated containers list:\n')
-    list_containers() ##TODO: list filtered containers only
 
 
 def delete_container():
@@ -78,7 +78,7 @@ def delete_container():
     container_name = input('Select the container name to delete: ').strip()
     exited_filter = {'status': 'exited', 'name': container_name}
     print('\nFiltered containers:')
-    for container in CLIENT.container.list(filters=exited_filter):
+    for container in CLIENT.containers.list(filters=exited_filter):
         print(f'\tRemoving container:\tID\t{container.short_id}\tNAME:\t{container.name}')
         container.stop()
         container.remove()
@@ -99,21 +99,20 @@ def main():
     }
     while True:
         choice = input(f'''
-            Please input command\n\t{'-' * 25}
-            'q': quit,
-            'li': list all images,
-            'lc': list all containers,
-            'pi': pull new image,
-            'di': delete image,
-            'rc': run container,
-            'sc': stop container,
-            'dc': delete container\n\t{'-' * 25}
-            ''').lower()
+        Please input command\n\t{'-' * 25}
+        'q': quit,
+        'li': list all images,
+        'lc': list all containers,
+        'pi': pull new image,
+        'di': delete image,
+        'rc': run container,
+        'sc': stop container,
+        'dc': delete container\n\t{'-' * 25}
+        ''').lower()
         if choice in actions.keys():
            actions[choice]()
         else:
             print('Invalid input. Please try again')
-            quit()
 
 
 if __name__ == '__main__':
