@@ -26,9 +26,7 @@ def list_containers() -> dict:
 def pull_image():
     repo_list = ['1', '2', '3', '4', '5', '6', 'Q', 'q']
     image_name = ''
-    chosen_repo = ''
-    while chosen_repo not in repo_list:
-        chosen_repo = input(f'''
+    chosen_repo = input(f'''
         Please select one of the following repositories:
         {'-' * 69}
         1 - Debian; 2 - Ubuntu; 3 - CentOS; 4- Fedora, 5 - Mageia, 6 - Alpine
@@ -36,8 +34,9 @@ def pull_image():
         Please use numeric digits: from 1 to 6 only.
         Or just type "Q/q" to quit from the function\n
         ''')
+    while chosen_repo not in repo_list:
         if chosen_repo == 'Q' or 'q':
-            main()
+            break
     if chosen_repo == '1':
         image_name = 'debian'
     elif chosen_repo == '2':
@@ -50,8 +49,8 @@ def pull_image():
         image_name = 'mageia'
     elif chosen_repo == '6':
         image_name = 'alpine'
+    print(f'Pulling down the {image_name.capitalize()} image\n')
     CLIENT.images.pull(image_name)
-    print(f'The image {image_name} has been pulled, and been added to the list:\n')
     list_images()
 
 
@@ -68,7 +67,7 @@ def run_container():
     num_to_image_map = list_images()
     if len(num_to_image_map) != 0:
         image_num = int(input('Select the image number to run container: '))
-        image_id = num_to_image_map[image_num].tags
+        image_id = ''.join(num_to_image_map[image_num].tags)
         print(f'Running container from the selected image {image_id}\n')
         CLIENT.containers.run(image_id)
         list_containers()
