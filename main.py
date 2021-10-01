@@ -52,9 +52,9 @@ def pull_image():
 def delete_image():
     num_to_image_map = list_images()
     image_num = int(input('Select the image number to delete: \n'))
-    image_id = num_to_image_map[image_num].tags
+    image_id = num_to_image_map[image_num].id
     CLIENT.images.remove(image_id, force=True)
-    print(f'The selected image {image_id} has been removed.\nThe updated image list\n')
+    print(f'The selected image {image_id[7:17]} has been removed.\nThe updated image list\n')
     list_images()
 
 
