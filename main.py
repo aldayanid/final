@@ -25,11 +25,11 @@ def pull_image():
     while chosen_repo not in repo_list:
         chosen_repo = input(f'''
         Please select one of the following repositories:
-        {'-' * 34}
-        1 - Debian; 2 - Ubuntu; 3 - CentOS
-        {'-' * 34}
-        Please use numeric digits: 1, 2, 3 only.
-        Or just type "0" to quit from the function\n
+        {'-' * 69}
+        1 - Debian; 2 - Ubuntu; 3 - CentOS; 4- Fedora, 5 - Mageia, 6 - Alpine
+        {'-' * 69}
+        Please use numeric digits: from 1 to 6 only.
+        Or just type "Q/q" to quit from the function\n
         ''')
         if chosen_repo == 'Q' or 'q':
             break
@@ -39,6 +39,12 @@ def pull_image():
         image_name = 'ubuntu'
     elif chosen_repo == '3':
         image_name = 'centos'
+    elif chosen_repo == '4':
+        image_name = 'fedora'
+    elif chosen_repo == '5':
+        image_name = 'mageia'
+    elif chosen_repo == '6':
+        image_name = 'alpine'
     CLIENT.images.pull(image_name)
     print(f'The image {image_name} has been pulled, and been added to the list:\n')
     list_images()
