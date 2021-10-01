@@ -4,19 +4,23 @@ import itertools
 CLIENT = docker.from_env()
 
 
-def list_images():
-    print('\nID:\t\tNAME:')
-    for image in CLIENT.images.list(all=True):
+def list_images() -> dict:
+    print('\nCount:\tID:\t\tNAME:')
+    num_to_image_map = dict(zip(itertools.count(start=1), CLIENT.images.list(all=True)))
+    for count, image in num_to_image_map.items():
         for image_tag in image.tags:
-            print('{}\t{}'.format(image.short_id[7:], image_tag))
+            print('{}\t{}\t{}'.format(count, image.short_id[7:], image_tag))
     print('\n')
+    return num_to_image_map
 
 
-def list_containers():
-    print('\nCount:\tID:\t\t\tNAME:\t\t\tIMAGE:')
-    for count, container in zip(itertools.count(start=1), CLIENT.containers.list(all=True)):
-        print('{}\t{}\t{}\t{}'.format(count, container.short_id, container.name.rjust(25), container.image))
+def list_containers() -> dict:
+    print('\nCount:\tID:\t\tNAME:\t\t\tSTATUS:')
+    num_to_container_map = dict(zip(itertools.count(start=1), CLIENT.containers.list(all=True)))
+    for count, container in num_to_container_map.items():
+        print('{}\t{}\t{}{}'.format(count, container.short_id, container.name.ljust(24), container.status))
     print('\n')
+    return num_to_container_map
 
 
 def pull_image():
@@ -78,10 +82,10 @@ def stop_container():
 
 
 def delete_container():
-    list_containers()
-    container_name = input('Select the container name to delete: ').strip()
+    num_to_container_map = list_containers()
+    container_num = int(input('Select the container number to delete: '))
+    container_name = num_to_container_map[container_num].name
     exited_filter = {'status': 'exited', 'name': container_name}
-    print('\nFiltered containers:')
     for container in CLIENT.containers.list(filters=exited_filter):
         print(f'\tRemoving container:\tID\t{container.short_id}\tNAME:\t{container.name}')
         container.stop()
