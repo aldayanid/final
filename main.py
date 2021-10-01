@@ -1,25 +1,30 @@
-import docker
+import docker ##pip install docker
+import itertools
 
 CLIENT = docker.from_env()
 
 
-def list_images():
-    print('\n    ID:\t\t\tNAME:')
-    for image in CLIENT.images.list(all=True):
+def list_images() -> dict:
+    print('\nCount:\tID:\t\tNAME:')
+    num_to_image_map = dict(zip(itertools.count(start=1), CLIENT.images.list(all=True)))
+    for count, image in num_to_image_map.items():
         for image_tag in image.tags:
-            print(image.short_id[7:], '\t', image_tag)
+            print('{}\t{}\t{}'.format(count, image.short_id[7:], image_tag))
     print('\n')
+    return num_to_image_map
 
 
-def list_containers():
-    print('\nID:\t\t\tNAME:\t\t\tIMAGE:')
-    for container in CLIENT.containers.list(all=True):
-        print('{}\t{}\t{}'.format(container.short_id, container.name.rjust(25), container.image))
+def list_containers() -> dict:
+    print('\nCount:\tID:\t\tNAME:\t\t\tSTATUS:')
+    num_to_container_map = dict(zip(itertools.count(start=1), CLIENT.containers.list(all=True)))
+    for count, container in num_to_container_map.items():
+        print('{}\t{}\t{}{}'.format(count, container.short_id, container.name.ljust(24), container.status))
     print('\n')
+    return num_to_container_map
 
 
 def pull_image():
-    repo_list = ['1', '2', '3', 'Q', 'q']
+    repo_list = ['1', '2', '3', '4', '5', '6', 'Q', 'q']
     image_name = ''
     chosen_repo = ''
     while chosen_repo not in repo_list:
@@ -32,7 +37,7 @@ def pull_image():
         Or just type "Q/q" to quit from the function\n
         ''')
         if chosen_repo == 'Q' or 'q':
-            break
+            main()
     if chosen_repo == '1':
         image_name = 'debian'
     elif chosen_repo == '2':
@@ -51,39 +56,48 @@ def pull_image():
 
 
 def delete_image():
-    print('To delete, please copy/paste one of the listed image IDs:\n')
-    list_images()
-    image_id = input('Delete image by image ID:\n').strip()
-    CLIENT.images.remove(image_id)
-    print(f'The selected image {image_id} has been removed.\nThe updated image list\n')
+    num_to_image_map = list_images()
+    image_num = int(input('Select the image number to delete: \n'))
+    image_id = num_to_image_map[image_num].id
+    CLIENT.images.remove(image_id, force=True)
+    print(f'The selected image {image_id[7:17]} has been removed.\nThe updated image list\n')
     list_images()
 
 
 def run_container():
-    print('To run a new container, please copy/paste one of the listed image IDs:\n')
-    list_images()
-    image_id = input('Select the image to run a new container:\n').strip()
-    CLIENT.container.run(image_id)
-    print(f'Running container from the selected image {image_id}\n')
-    list_containers()
+    num_to_image_map = list_images()
+    if len(num_to_image_map) != 0:
+        image_num = int(input('Select the image number to run container: '))
+        image_id = num_to_image_map[image_num].tags
+        print(f'Running container from the selected image {image_id}\n')
+        CLIENT.containers.run(image_id)
+        list_containers()
+    else:
+        print('No images found on your system')
+        main()
 
 
-def stop_container(): ##TODO: add check if there is running container
-    running_filter = {'status': 'running'}
-    CLIENT.containers.list(filters=running_filter)
-    container_name = input('Select the container name to stop: ').strip()
-    for container in CLIENT.containers.list(filters=running_filter):
-        print(f'\tStopping container:\tID\t{container.short_id}\tNAME:\t{container.name}')
-        container.stop()
-        print(f'The container {container_name} has been stopped.')
-    list_containers()
+def stop_container():
+    running_containers = CLIENT.containers.list(filters={'status': 'running'})
+    num_to_container_map = list_containers()
+    if len(running_containers) != 0:
+        container_num = int(input('Select the container number to stop: '))
+        container_name = num_to_container_map[container_num].name
+        for container in running_containers:
+            print(f'\tStopping container:\tID\t{container.short_id}\tNAME:\t{container.name}')
+            container.stop()
+            print(f'The container {container_name} has been stopped.')
+            list_containers()
+    else:
+        print('No running containers found on your system')
+        main()
 
 
 def delete_container():
-    list_containers()
-    container_name = input('Select the container name to delete: ').strip()
+    num_to_container_map = list_containers()
+    container_num = int(input('Select the container number to delete: '))
+    container_name = num_to_container_map[container_num].name
     exited_filter = {'status': 'exited', 'name': container_name}
-    print('\nFiltered containers:')
     for container in CLIENT.containers.list(filters=exited_filter):
         print(f'\tRemoving container:\tID\t{container.short_id}\tNAME:\t{container.name}')
         container.stop()
@@ -92,9 +106,19 @@ def delete_container():
     list_containers()
 
 
+def quit_or_no():
+    yes_or_now_choice = input('Are you sure you want to quit?\n')
+    choice_list = ['y', 'Y', 'YES', 'Yes', 'yes']
+    if yes_or_now_choice in choice_list:
+        print('Quitting from the program')
+        quit()
+    else:
+        main()
+
+
 def main():
     actions = {
-        'q': quit,
+        'q': quit_or_no,
         'li': list_images,
         'lc': list_containers,
         'pi': pull_image,
