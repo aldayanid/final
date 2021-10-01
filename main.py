@@ -1,20 +1,21 @@
 import docker
+import itertools
 
 CLIENT = docker.from_env()
 
 
 def list_images():
-    print('\n    ID:\t\t\tNAME:')
+    print('\nID:\t\tNAME:')
     for image in CLIENT.images.list(all=True):
         for image_tag in image.tags:
-            print(image.short_id[7:], '\t', image_tag)
+            print('{}\t{}'.format(image.short_id[7:], image_tag))
     print('\n')
 
 
 def list_containers():
-    print('\nID:\t\t\tNAME:\t\t\tIMAGE:')
-    for container in CLIENT.containers.list(all=True):
-        print('{}\t{}\t{}'.format(container.short_id, container.name.rjust(25), container.image))
+    print('\nCount:\tID:\t\t\tNAME:\t\t\tIMAGE:')
+    for count, container in zip(itertools.count(start=1), CLIENT.containers.list(all=True)):
+        print('{}\t{}\t{}\t{}'.format(count, container.short_id, container.name.rjust(25), container.image))
     print('\n')
 
 
@@ -48,7 +49,7 @@ def delete_image():
     print('To delete, please copy/paste one of the listed image IDs:\n')
     list_images()
     image_id = input('Delete image by image ID:\n').strip()
-    CLIENT.images.remove(image_id)
+    CLIENT.images.remove(image_id, force=True)
     print(f'The selected image {image_id} has been removed.\nThe updated image list\n')
     list_images()
 
@@ -57,20 +58,23 @@ def run_container():
     print('To run a new container, please copy/paste one of the listed image IDs:\n')
     list_images()
     image_id = input('Select the image to run a new container:\n').strip()
-    CLIENT.container.run(image_id)
+    CLIENT.containers.run(image_id)
     print(f'Running container from the selected image {image_id}\n')
     list_containers()
 
 
-def stop_container(): ##TODO: add check if there is running container
-    running_filter = {'status': 'running'}
-    CLIENT.containers.list(filters=running_filter)
-    container_name = input('Select the container name to stop: ').strip()
-    for container in CLIENT.containers.list(filters=running_filter):
-        print(f'\tStopping container:\tID\t{container.short_id}\tNAME:\t{container.name}')
-        container.stop()
-        print(f'The container {container_name} has been stopped.')
-    list_containers()
+def stop_container():
+    running_containers = CLIENT.containers.list(filters={'status': 'running'})
+    if len(running_containers) != 0:
+        container_name = input('Select the container name to stop: ').strip()
+        for container in running_containers:
+            print(f'\tStopping container:\tID\t{container.short_id}\tNAME:\t{container.name}')
+            container.stop()
+            print(f'The container {container_name} has been stopped.')
+            list_containers()
+    else:
+        print('No running containers found on your system')
+        main()
 
 
 def delete_container():
