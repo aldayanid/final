@@ -50,27 +50,30 @@ def pull_image():
 
 
 def delete_image():
-    print('To delete, please copy/paste one of the listed image IDs:\n')
-    list_images()
-    image_id = input('Delete image by image ID:\n').strip()
+    num_to_image_map = list_images()
+    image_num = int(input('Select the image number to delete: \n'))
+    image_id = num_to_image_map[image_num].tags
     CLIENT.images.remove(image_id, force=True)
     print(f'The selected image {image_id} has been removed.\nThe updated image list\n')
     list_images()
 
 
 def run_container():
-    print('To run a new container, please copy/paste one of the listed image IDs:\n')
-    list_images()
-    image_id = input('Select the image to run a new container:\n').strip()
-    CLIENT.containers.run(image_id)
+    num_to_image_map = list_images()
+    image_num = int(input('Select the image number to run container: '))
+    image_id = num_to_image_map[image_num].tags
     print(f'Running container from the selected image {image_id}\n')
+    container_run = CLIENT.containers.run(image_id)
+    container_run.wait()
     list_containers()
 
 
 def stop_container():
     running_containers = CLIENT.containers.list(filters={'status': 'running'})
+    num_to_container_map = list_containers()
     if len(running_containers) != 0:
-        container_name = input('Select the container name to stop: ').strip()
+        container_num = int(input('Select the container number to delete: '))
+        container_name = num_to_container_map[container_num].name
         for container in running_containers:
             print(f'\tStopping container:\tID\t{container.short_id}\tNAME:\t{container.name}')
             container.stop()
