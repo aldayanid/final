@@ -10,7 +10,6 @@ def list_images() -> dict:
     for count, image in num_to_image_map.items():
         for image_tag in image.tags:
             print('{}\t{}\t{}'.format(count, image.short_id[7:], image_tag))
-    print('\n')
     return num_to_image_map
 
 
@@ -19,7 +18,6 @@ def list_containers() -> dict:
     num_to_container_map = dict(zip(itertools.count(start=1), CLIENT.containers.list(all=True)))
     for count, container in num_to_container_map.items():
         print('{}\t{}\t{}{}'.format(count, container.short_id, container.name.ljust(24), container.status))
-    print('\n')
     return num_to_container_map
 
 
@@ -56,7 +54,7 @@ def pull_image():
 
 def delete_image():
     num_to_image_map = list_images()
-    image_num = int(input('Select the image number to delete: \n'))
+    image_num = int(input('Select the image count number to delete: \n'))
     image_id = num_to_image_map[image_num].id
     CLIENT.images.remove(image_id, force=True)
     print(f'The selected image {image_id[7:17]} has been removed.\nThe updated image list\n')
@@ -66,21 +64,33 @@ def delete_image():
 def run_container():
     num_to_image_map = list_images()
     if len(num_to_image_map) != 0:
-        image_num = int(input('Select the image number to run container: '))
+        image_num = int(input('Select the image count number to run container: '))
         image_id = ''.join(num_to_image_map[image_num].tags)
         print(f'Running container from the selected image {image_id}\n')
         CLIENT.containers.run(image_id)
         list_containers()
     else:
-        print('No images found on your system')
-        main()
+        print('\tNo images found on your system')
+        return
+
+
+def start_container():
+    num_to_container_map = list_containers()
+    container_num = int(input('Select the container count number to start: '))
+    container_name = num_to_container_map[container_num].name
+    exited_filter = {'status': 'exited', 'name': container_name}
+    for container in CLIENT.containers.list(filters=exited_filter):
+        print(f'\tStarting the container: {container.name}')
+        container.start()
+        print('\t...successfully started.')
+    list_containers()
 
 
 def stop_container():
     running_containers = CLIENT.containers.list(filters={'status': 'running'})
     num_to_container_map = list_containers()
     if len(running_containers) != 0:
-        container_num = int(input('Select the container number to stop: '))
+        container_num = int(input('Select the container count number to stop: '))
         container_name = num_to_container_map[container_num].name
         for container in running_containers:
             print(f'\tStopping container:\tID\t{container.short_id}\tNAME:\t{container.name}')
@@ -89,12 +99,12 @@ def stop_container():
             list_containers()
     else:
         print('No running containers found on your system')
-        main()
+        return
 
 
 def delete_container():
     num_to_container_map = list_containers()
-    container_num = int(input('Select the container number to delete: '))
+    container_num = int(input('Select the container count number to delete: '))
     container_name = num_to_container_map[container_num].name
     exited_filter = {'status': 'exited', 'name': container_name}
     for container in CLIENT.containers.list(filters=exited_filter):
@@ -112,7 +122,7 @@ def quit_or_no():
         print('Quitting from the program')
         quit()
     else:
-        main()
+        return
 
 
 def main():
@@ -122,6 +132,7 @@ def main():
         'lc': list_containers,
         'pi': pull_image,
         'di': delete_image,
+        'st': start_container,
         'rc': run_container,
         'sc': stop_container,
         'dc': delete_container
@@ -134,6 +145,7 @@ def main():
         'lc': list all containers,
         'pi': pull new image,
         'di': delete image,
+        'st': start container,
         'rc': run container,
         'sc': stop container,
         'dc': delete container\n\t{'-' * 25}
