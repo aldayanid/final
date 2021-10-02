@@ -79,7 +79,7 @@ Count:  ID:             NAME:
 
 At every loop of the main menu you can exit from the script by pressing 'Q' key.
 
-## Contributing
+## Feedback
 Any suggestions are welcome. For major changes, please open an issue first to discuss what you would like to add or change.
 
 Please fill free to contact me by mailing: [aldayanid@gmail.com](aldayanid@gmail.com)
