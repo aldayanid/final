@@ -1,44 +1,36 @@
 import docker
+import itertools
 
-client = docker.from_env()
-APIClient = docker.APIClient()
+CLIENT = docker.from_env()
+
+
+def list_images() -> dict:
+    print('\nCount:\tID:\t\tNAME:')
+    num_to_image_map = dict(zip(itertools.count(start=1), CLIENT.images.list(all=True)))
+    for count, image in num_to_image_map.items():
+        for image_tag in image.tags:
+            print('{}\t{}\t{}'.format(count, image.short_id[7:], image_tag))
+    return num_to_image_map
+
+
+def list_containers() -> dict:
+    print('\nCount:\tID:\t\tNAME:\t\t\tSTATUS:')
+    num_to_container_map = dict(zip(itertools.count(start=1), CLIENT.containers.list(all=True)))
+    for count, container in num_to_container_map.items():
+        print('{}\t{}\t{}{}'.format(count, container.short_id, container.name.ljust(24), container.status))
+    return num_to_container_map
 
 
 def main():
-
-    containers_list = client.containers.list()
-    for containers in containers_list:
-        print(f'Container ID: {containers.short_id}, name: {containers.name}, tag: {str(containers.image)[9:-2]}')
-
-    while True:
-        container_id = input('Select the container name to delete: ')
-        if len(container_id) != 10:
-            print('Invalid input. Try again - 10 symbols only')
-        else:
-            APIClient.kill(container_id)
-            # os.system(f'docker rm --e5a108f688force {container_id}')
-            print(f'The container has been deleted.\nThe updated containers list:')
-
-
-# def main():
-#     images_list = client.images.list(all=True)
-#     for image in images_list:
-#         for image_obj in image.tags:
-#             image_str = ''.join([str(item) for item in image_obj])
-#             print(f'Image ID: {image.short_id[7:]} tag: {image_str}')
-
-# left = '<bound method Image.tag of <Image: \''
-# right = ':latest\'>>'
-
-# def main():
-#     images_list = client.images.list(all=True)
-#
-#     print(images_list)
-#     for image in images_list:
-#         image_tag_str = str(image.tag)
-#         print(f'Image ID: {image.short_id[7:]}; '
-#               f'repository: {image_tag_str[image_tag_str.index(left)+len(left):image_tag_str.index(right)]}; '
-#               f'tag: {image.tags}')
+    num_to_container_map = list_containers()
+    container_num = int(input('Select the container count number to start: '))
+    container_name = num_to_container_map[container_num].name
+    exited_filter = {'status': 'exited', 'name': container_name}
+    for container in CLIENT.containers.list(filters=exited_filter):
+        print(f'\tStarting the container: {container.name}')
+        container.start()
+        print('\t...successfully started.')
+    list_containers()
 
 
 if __name__ == '__main__':

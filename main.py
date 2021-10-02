@@ -1,4 +1,6 @@
-import docker ##pip install docker
+#! /usr/bin/python
+
+import docker
 import itertools
 
 CLIENT = docker.from_env()
@@ -115,19 +117,9 @@ def delete_container():
     list_containers()
 
 
-def quit_or_no():
-    yes_or_now_choice = input('Are you sure you want to quit?\n')
-    choice_list = ['y', 'Y', 'YES', 'Yes', 'yes']
-    if yes_or_now_choice in choice_list:
-        print('Quitting from the program')
-        quit()
-    else:
-        return
-
-
 def main():
     actions = {
-        'q': quit_or_no,
+        'q': quit,
         'li': list_images,
         'lc': list_containers,
         'pi': pull_image,

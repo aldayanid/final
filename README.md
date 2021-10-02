@@ -1,141 +1,94 @@
-<!-- PROJECT SHIELDS -->
-<!-- 
+## Description:
 
-[![MIT License][license-shield]][license-url]
+In front of you a simple script, that allows to manage the most common tasks of the Docker containers system.
+
+This solution was developed under the final project of DevOps course path of [RT-ED college](https://rt-ed.co.il).
+
+Generally, the single purpose of the script to run Docker basic tasks, such:
+
+- list
+pull/delete images
+- list/stop/run/start/delete containers.
+
+The script is cross-platform and successfully has been tested on: Linux, MacOS, Windows operational systems.
+Instead of pushing terminal commands by using **os.system** or similar Python build-in methods, this script based on the [Docker SDK for Python](https://docker-py.readthedocs.io/en/stable/) library for the Docker daemon called [Docker EngineAPI](https://docs.docker.com/engine/api/). Docker provides an API for interacting with the Docker Engine API as well as SDKs for most modern programming languages. The SDKs allow to build and scale Docker apps and solutions quickly and easily, regardless of environment, and interacting with Docker Engine API directly.
 
 
-
-
-<!-- PROJECT LOGO -->
-<br />
-<p align="center">
-  <a href="https://github.com/aldayanid/final">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
-
-  <h3 align="center">The final DevOps project </h3>
-
-  <p align="center">
-    A non-GUI Docker management
-    <br />
-    <a href="https://github.com:aldayanid/final.git"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/aldayanid/final">View Demo</a>
-    ·
-    <a href="https://github.com:aldayanid/final/issues">Request Feature or Bug Report</a>
-  </p>
-</p>
+## Requirements:
 
 
 
-<!-- TABLE OF CONTENTS -->
-<details open="open">
-  <summary><h2 style="display: inline-block">Table of Contents</h2></summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgements">Acknowledgements</a></li>
-  </ol>
-</details>
+First of all, before you're going to start with, please ensure that you have installed the following software and packages:
+
+[Python 3.x](https://www.python.org/downloads)
+
+[pip](https://pip.pypa.io/en/stable/cli/pip_install/) 
+
+[Docker](https://www.docker.com)
+
+[Docker SDK for Python](https://docker-py.readthedocs.io/en/stable/)
 
 
+## Installation
 
-<!-- ABOUT THE PROJECT -->
-## About The Project
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install Docker SDK. Simply type:
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
-
-
-<!-- GETTING STARTED -->
-## Getting Started
-
-To get a local copy up and running follow these simple steps.
-
-### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them:
-Python (https://www.python.org/downloads/)
-[pip] (https://pip.pypa.io/en/stable/cli/pip_install/) 
-[Docker] (https://www.docker.com)
-[Docker SDK for Python] (https://docker-py.readthedocs.io/en/stable/)
-
-
-### Installation
-
-1. Clone the repo
-   ```sh
-   git clone https://github.com/aldayanid/final.git
-   ```
-2. Install Docker SDK package
-   ```sh
-   pip install docker
-   ```
-
-
-
-<!-- USAGE EXAMPLES -->
+```bash
+pip install docker
+```
+If SDK has been installed successfully you will be available import and use the **docker** SDK.
+```python
+import docker
+```
+In case you faced some issues with pip or docker installing, please refer to documentation mentioned above.
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+Once everything is ready, follow the steps below to run it.
+Basically, this script could be executed from any appropriate IDE by executing the [main.py](https://github.com/aldayanid/final/main.py) file.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+Or simply navigate the terminal to the directory where the script is located and type:
+```bash
+python main.py
+```
+It will give you an output with the main menu:
+```bash
+ Please input command
+        -------------------------
+        'q': quit,
+        'li': list all images,
+        'lc': list all containers,
+        'pi': pull new image,
+        'di': delete image,
+        'st': start container,
+        'rc': run container,
+        'sc': stop container,
+        'dc': delete container
+        -------------------------
+```
+Type one of the listed command cuts in order to jump over the functions, like listing the all images existing on a system, for example:
+
+```bash
+Count:  ID:             NAME:
+1       597ce1600c      ubuntu:latest
+2       a178460bae      debian:latest
+3       5d0da3dc97      centos:latest
+4       14119a10ab      alpine:latest
+5       dce66322d6      fedora:latest
+6       5d2f474d26      mageia:latest
+```
+
+At every loop of the main menu you can exit from the script by pressing 'Q' key.
+
+## Contributing
+Any suggestions are welcome. For major changes, please open an issue first to discuss what you would like to add or change.
+
+Please fill free to contact me by mailing: [aldayanid@gmail.com](aldayanid@gmail.com)
 
 
+[Project link](https://github.com/aldayanid/final)
 
-<!-- ROADMAP -->
-## Roadmap
-
-See the [open issues](https://github.com/aldayanid/final/issues) for a list of proposed features (and known issues).
-
-
-
-<!-- LICENSE -->
 ## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
+Distributed under the [MIT Lisence](https://choosealicense.com/licenses/mit/). See `LICENSE` for more information.
 
 
-<!-- CONTACT -->
-## Contact
-
-Daniel Reznik - aldayanid@gmail.com
-
-Project Link: [The project link](https://github.com/aldayanid/final)
-
-
-
-<!-- ACKNOWLEDGEMENTS -->
-## Acknowledgements
-
-* []()
-* []()
-* []()
-
-
-
-
-
-<!-- MARKDOWN LINKS & IMAGES -->
-
-[license-shield]: https://img.shields.io/github/license/aldayanid/repo.svg?style=for-the-badge
-[license-url]: https://github.com/aldayanid/final/main/LICENSE.txt
-
+(C) Daniel Reznik, 2021
